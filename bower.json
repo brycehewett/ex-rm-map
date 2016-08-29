@@ -1,0 +1,21 @@
+{
+  "name": "ex-rm-map",
+  "authors": [
+    "Bryce Hewett <hello@brycehewett.com>"
+  ],
+  "description": "A map of where ex-rms served their missions and when they left",
+  "main": "index.html",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-ui-router": "^0.3.1"
+  }
+}

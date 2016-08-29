@@ -1,0 +1,140 @@
+<md-dialog aria-label="Add RM to Map" flex-xs="95" flex-gt-xs="50" flex-gt-sm="50" flex-gt-md="30">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Add to Map</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="newRM.cancel()">
+        <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+    <md-tabs md-dynamic-height md-border-bottom md-selected="data.selectedIndex">
+      <md-tab id="missionInfo"
+              md-active="newRM.missionTab"
+              md-on-select="newRM.missionTab = true"
+              md-on-deselect="newRM.missionTab = false">
+        <md-tab-label>Mission Info</md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+              <form name="missionForm" ng-submit="newRM.addRM(newRM.RM)">
+
+                <md-autocomplete name="missionName"
+                                  id="missionName"
+                                   md-no-cache="true"
+                                   md-search-text="newRM.RM.missionDetails.name"
+                                   md-items="mission in newRM.missionNames | filter:newRM.RM.missionDetails.name"
+                                   md-item-text="mission"
+                                   md-min-length="1"
+                                   md-floating-label="Mission Name"
+                                   required>
+                                   <md-item-template>
+                                     <span md-highlight-text="newRM.RM.missionDetails.name"
+                                           md-highlight-flags="^i">
+                                           {{mission}}
+                                     </span>
+                                   </md-item-template>
+                  </md-autocomplete>
+
+                  <md-autocomplete name="missionLocation"
+                                   md-no-cache="true"
+                                   md-selected-item="newRM.RM.missionDetails.location.address"
+                                   md-search-text="locationSearchText"
+                                   md-items="location in newRM.search(locationSearchText)"
+                                   md-item-text="location"
+                                   md-min-length="1"
+                                   md-floating-label="Mission Location"
+                                   md-require-match="true"
+                                   md-autoselect="true"
+                                   required>
+                                   <md-item-template>
+                                     <span md-highlight-text="locationSearchText" md-highlight-flags="^i">{{location}}</span>
+                                   </md-item-template>
+                  </md-autocomplete>
+
+                  <md-input-container>
+                    <label>Mission Start Year</label>
+                    <input ng-model="newRM.RM.missionDetails.start"
+                           type="text"
+                           required>
+                  </md-input-container>
+
+                  <md-input-container>
+                    <label>Mission End Year</label>
+                    <input ng-model="newRM.RM.missionDetails.end"
+                           type="text"
+                           required>
+                  </md-input-container>
+                </form>
+            </md-content>
+          </md-tab-body>
+        </md-tab>
+        <md-tab id="personalInfo"
+                ng-disabled="missionForm.$error.required"
+                md-on-select="newRM.personalTab = true"
+                md-on-deselect="newRM.personalTab = false"
+                md-active="newRM.personalTab">
+          <md-tab-label>Personal Info</md-tab-label>
+            <md-tab-body>
+              <md-content class="md-padding">
+                <form name="personalForm">
+                <md-autocomplete name="RMLocation"
+                                 md-no-cache="true"
+                                 md-selected-item="newRM.RM.from"
+                                 md-search-text="RMLocationSearch"
+                                 md-items="location in newRM.search(RMLocationSearch)"
+                                 md-item-text="location"
+                                 md-min-length="1"
+                                 md-floating-label="Where are you from?"
+                                 md-require-match="true"
+                                 md-autoselect="true"
+                                 required>
+                                 <md-item-template>
+                                   <span md-highlight-text="RMLocationSearch" md-highlight-flags="^i">{{location}}</span>
+                                 </md-item-template>
+                </md-autocomplete>
+
+                <md-input-container class="md-block">
+                  <label>Year You Left The Church</label>
+                  <input ng-model="newRM.RM.leftChurch.date"
+                         type="text"
+                         required>
+                </md-input-container>
+
+                <md-input-container class="md-block">
+                  <label>Reason For Leaving The Church (Optional)</label>
+                  <textarea ng-model="newRM.RM.leftChurch.reason"
+                         type="text" md-maxlength="250" rows="5"></textarea>
+                </md-input-container>
+
+                <md-radio-group ng-model="newRM.RM.gender">
+                      <md-radio-button value="Male">Male</md-radio-button>
+                      <md-radio-button value="Female">Female</md-radio-button>
+                      <md-radio-button value="Trans*">Trans*</md-radio-button>
+                </md-radio-group>
+              </form>
+            </md-content>
+          </md-tab-body>
+        </md-tab>
+      </md-tabs>
+    </md-dialog-content>
+    <md-dialog-actions>
+      <!-- <md-button ng-click="newRM.debug(missionForm.$error)">console log</md-button> -->
+
+      <md-button ng-click="newRM.cancel()">Cancel</md-button>
+      <md-button class="md-primary"
+                 ng-hide="newRM.personalTab"
+                 ng-disabled="missionForm.$error.required"
+                 ng-click="newRM.personalTab = true; newRM.missionTab = false">Next
+      </md-button>
+      <md-button ng-show="newRM.personalTab"
+                 ng-click="newRM.personalTab = false; newRM.missionTab = true">Previous
+      </md-button>
+      <md-button class="md-primary md-raised"
+                 ng-disabled="personalForm.$invalid"
+                 ng-show="newRM.personalTab"
+                 ng-click="newRM.add(newRM.RM)">Submit
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

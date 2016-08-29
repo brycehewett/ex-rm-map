@@ -1,0 +1,75 @@
+<html lang="en" ng-app="app">
+  <base href="/">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+
+    <style>
+      #map {
+        height: calc(100vh - 64px);
+      }
+
+      md-pagination-wrapper {
+        width: auto!important;
+      }
+    </style>
+
+  </head>
+
+  <body layout="row" ng-controller="mainController as main"  id="{{$state}}">
+    <md-sidenav class="md-sidenav-left"
+                md-is-locked-open="$mdMedia('gt-sm')">
+                <md-toolbar class="md-theme-indigo">
+        <h1 class="md-toolbar-tools">Ex-Mormon Missionary Map</h1>
+      </md-toolbar>
+      <md-content class="md-padding">
+        <p>
+          This map serves as a visual representation of the mormon missionaries that have left The Church of Jesus Christ of Latter-Day Saints.
+        </p>
+        <p>
+          If you served a mission and left the church, add yourself to the map.
+        </p>
+
+        <md-button class="md-primary md-raised"
+                   ng-click="main.showNewRMDialog($event)">
+                   Add yourself to the map
+        </md-button>
+
+      </md-content>
+    </md-sidenav>
+    <div md-layout="column" flex>
+
+      <md-toolbar class="md-theme-indigo">
+        <h1 class="md-toolbar-tools">Ex-Mormon Missionary Map</h1>
+        <md-button class="md-primary md-raised"
+                   ng-click="main.showNewRMDialog($event)">
+                   Add yourself to the map
+        </md-button>
+      </md-toolbar>
+      <div ui-view></div>
+    </div>
+  </body>
+
+  <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+  <!-- Angular Material requires Angular.js Libraries -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+  <!-- Angular Material Library -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+  <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAeH783QQVFjIwvFuTPVw72gYpMxnPIjis&libraries=places"></script>
+
+  <!-- Other dependencies -->
+  <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="bower_components/js-marker-clusterer/src/markerclusterer_compiled.js"></script>
+  <script src="bower_components/js-marker-clusterer/examples/data.json"></script>
+  <script src="app.js"></script>
+  <script src="app.Route.js"></script>
+  <script src="mainCtrl.js"></script>
+
+</html>
