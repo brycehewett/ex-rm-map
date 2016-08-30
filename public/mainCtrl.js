@@ -33,7 +33,9 @@
     vm.missionNames = [];
     vm.newRM;
 
-    // $log.debug(newRM);
+    vm.toggleNav = function() {
+      $mdSidenav('left').toggle();
+    }
 
     vm.initMap = function() {
       var myLatLng = {lat: 33.328748, lng: -40.497745};

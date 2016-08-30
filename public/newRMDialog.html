@@ -4,7 +4,7 @@
       <h2>Add to Map</h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="newRM.cancel()">
-        <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        <md-icon aria-label="Close Dialog" class="material-icons">close</md-icon>
       </md-button>
     </div>
   </md-toolbar>
@@ -118,10 +118,9 @@
         </md-tab>
       </md-tabs>
     </md-dialog-content>
-    <md-dialog-actions>
-      <!-- <md-button ng-click="newRM.debug(missionForm.$error)">console log</md-button> -->
-
+    <md-dialog-actions layout="row">
       <md-button ng-click="newRM.cancel()">Cancel</md-button>
+      <span flex></span>
       <md-button class="md-primary"
                  ng-hide="newRM.personalTab"
                  ng-disabled="missionForm.$error.required"
