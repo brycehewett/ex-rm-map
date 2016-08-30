@@ -11,7 +11,6 @@
 
     var vm = this;
 
-
     var firebaseConfig = {
       apiKey: "AIzaSyCa7VZ-kAvTLOOO1J-mMAI84k4NmyYuFbo",
       authDomain: "ex-rm-map.firebaseapp.com",
@@ -21,17 +20,15 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    var vm = this;
+    vm.RMList = {};
+    vm.missions = [];
+    vm.missionNames = [];
+    vm.newRM;
 
     var geocoder;
     var map;
     var markerArray = [];
     var markerCluster;
-
-    vm.RMList = {};
-    vm.missions = [];
-    vm.missionNames = [];
-    vm.newRM;
 
     vm.toggleNav = function() {
       $mdSidenav('left').toggle();
@@ -51,8 +48,6 @@
     vm.appInit = function(){
       firebase.database().ref('RMList/').once('value').then(function(snapshot) {
         vm.RMList = snapshot.val();
-        console.log("RM List")
-        console.log(vm.RMList);
         for (var rm in vm.RMList) {
           var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
           var marker = new google.maps.Marker({
@@ -63,7 +58,6 @@
           var index = vm.missions.findIndex(x => x.name == vm.RMList[rm].missionDetails.name);
 
           if (index === -1){
-            console.log(index)
             var mission = vm.RMList[rm].missionDetails;
             delete mission.start;
             delete mission.end;
@@ -72,20 +66,10 @@
           }
           markerArray.push(marker);
         }
-        console.log(vm.missions)
-        console.log(vm.missionNames)
         vm.initMap();
       }, function(error) {
           $log.error(error)
       })
-
-      // firebase.database().ref('missions/').once('value').then(function(snapshot) {
-      //   missions = snapshot.val();
-      //   console.log('missions')
-      //   console.log(missions)
-      // }, function(error) {
-      //     $log.error(error)
-      // })
     };
 
 
@@ -98,7 +82,6 @@
       clickOutsideToClose: true
     })
     .then(function(newRM) {
-      console.log(newRM)
       map.setCenter(newRM.missionDetails.location);
       var marker = new google.maps.Marker({
           map: map,
@@ -107,7 +90,6 @@
 
       markerCluster.addMarker(marker);
     }, function() {
-      $log.warn('Dialog Cancelled')
     });
   };
 
@@ -119,26 +101,6 @@
     vm.missionNames = missions
     vm.gmapsService = new google.maps.places.AutocompleteService();
     vm.geocoder = new google.maps.Geocoder();
-
-    console.log(vm.missionNames)
-
-    vm.RM = {
-      from: 'Panama City, FL',
-      gender: 'Male',
-      creationDate: 'text',
-      leftChurch: {
-        date: '2015',
-        reason: 'text'
-      },
-      missionDetails: {
-        start: '2007',
-        end: '2009',
-        name: 'Tirana Albania Mission',
-        location: {
-          address: 'Tirana, Albania',
-        }
-      }
-    };
 
     vm.cancel = function() {
       $mdDialog.cancel();

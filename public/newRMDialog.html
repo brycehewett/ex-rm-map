@@ -56,6 +56,8 @@
                     <label>Mission Start Year</label>
                     <input ng-model="newRM.RM.missionDetails.start"
                            type="text"
+                           mask="2999"
+                           restrict="reject"
                            required>
                   </md-input-container>
 
@@ -63,6 +65,8 @@
                     <label>Mission End Year</label>
                     <input ng-model="newRM.RM.missionDetails.end"
                            type="text"
+                           mask="2999"
+                           restrict="reject"
                            required>
                   </md-input-container>
                 </form>
@@ -98,6 +102,8 @@
                   <label>Year You Left The Church</label>
                   <input ng-model="newRM.RM.leftChurch.date"
                          type="text"
+                         mask="2999"
+                         restrict="reject"
                          required>
                 </md-input-container>
 
