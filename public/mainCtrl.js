@@ -43,7 +43,7 @@
         center: myLatLng
       });
 
-      markerCluster = new MarkerClusterer(map, markerArray, {imagePath: 'bower_components/js-marker-clusterer/images/m'});
+      markerCluster = new MarkerClusterer(map, markerArray, {imagePath: 'libs/js-marker-clusterer/images/m'});
     }
 
     vm.appInit = function(){
