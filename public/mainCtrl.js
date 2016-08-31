@@ -21,7 +21,6 @@
     firebase.initializeApp(firebaseConfig);
 
     vm.RMList = {};
-    vm.missions = [];
     vm.missionNames = [];
     vm.newRM;
 
@@ -53,16 +52,8 @@
           var marker = new google.maps.Marker({
             position: latLng
           });
-
-
-          var index = vm.missions.findIndex(x => x.name == vm.RMList[rm].missionDetails.name);
-
-          if (index === -1){
-            var mission = vm.RMList[rm].missionDetails;
-            delete mission.start;
-            delete mission.end;
-            vm.missions.push(mission);
-            vm.missionNames.push(mission.name)
+          if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
+            vm.missionNames.push(vm.RMList[rm].missionDetails.name)
           }
           markerArray.push(marker);
         }
@@ -71,7 +62,6 @@
           $log.error(error)
       })
     };
-
 
     vm.showNewRMDialog = function() {
     $mdDialog.show({
@@ -101,6 +91,24 @@
     vm.missionNames = missions
     vm.gmapsService = new google.maps.places.AutocompleteService();
     vm.geocoder = new google.maps.Geocoder();
+
+    // vm.RM = {
+    //   from: 'Panama City, FL',
+    //   gender: 'Male',
+    //   creationDate: 'text',
+    //   leftChurch: {
+    //     date: '2015',
+    //     reason: 'text'
+    //   },
+    //   missionDetails: {
+    //     start: '2007',
+    //     end: '2009',
+    //     name: 'Tirana Albania Mission',
+    //     location: {
+    //       address: 'Tirana, Albania',
+    //     }
+    //   }
+    // };
 
     vm.cancel = function() {
       $mdDialog.cancel();
