@@ -29,6 +29,15 @@
     var markerArray = [];
     var markerCluster;
 
+    if (window.location.hostname.indexOf('localhost') < 0) {
+      $log.debug('not localhost')
+      var db = 'main/'
+    } else {
+      $log.debug('localhost')
+      var db = 'test/'
+      $log.debug(db)
+    }
+
     vm.toggleNav = function() {
       $mdSidenav('left').toggle();
     }
@@ -45,7 +54,7 @@
     }
 
     vm.appInit = function(){
-      firebase.database().ref('RMList/').once('value').then(function(snapshot) {
+      firebase.database().ref(db + 'RMList').once('value').then(function(snapshot) {
         vm.RMList = snapshot.val();
         for (var rm in vm.RMList) {
           var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
@@ -147,7 +156,7 @@
             vm.RM.missionDetails.location.lat = results[0].geometry.location.lat();
             vm.RM.missionDetails.location.lng = results[0].geometry.location.lng();
 
-            firebase.database().ref('RMList/').push(vm.RM);
+            firebase.database().ref(db + 'RMList').push(vm.RM);
 
             $mdToast.show(
               $mdToast.simple()
