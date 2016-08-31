@@ -12,9 +12,9 @@
     var vm = this;
 
     var firebaseConfig = {
-      apiKey: "AIzaSyCa7VZ-kAvTLOOO1J-mMAI84k4NmyYuFbo",
-      authDomain: "ex-rm-map.firebaseapp.com",
-      databaseURL: "https://ex-rm-map.firebaseio.com",
+      apiKey: "AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y",
+      authDomain: "exrmmap.firebaseapp.com",
+      databaseURL: "https://exrmmap.firebaseio.com",
       storageBucket: "",
     };
 
@@ -64,112 +64,111 @@
     };
 
     vm.showNewRMDialog = function() {
-    $mdDialog.show({
-      controller: newRMDialogController,
-      templateUrl: 'newRMDialog.html',
-      locals:{missions: vm.missionNames},
-      controllerAs: 'newRM',
-      clickOutsideToClose: true
-    })
-    .then(function(newRM) {
-      map.setCenter(newRM.missionDetails.location);
-      var marker = new google.maps.Marker({
-          map: map,
-          position: newRM.missionDetails.location
+      $mdDialog.show({
+        controller: newRMDialogController,
+        templateUrl: 'newRMDialog.html',
+        locals:{missions: vm.missionNames},
+        controllerAs: 'newRM',
+        clickOutsideToClose: true
+      })
+      .then(function(newRM) {
+        map.setCenter(newRM.missionDetails.location);
+        var marker = new google.maps.Marker({
+            map: map,
+            position: newRM.missionDetails.location
+        });
+
+        markerCluster.addMarker(marker);
+      }, function() {
       });
-
-      markerCluster.addMarker(marker);
-    }, function() {
-    });
-  };
-
-
-  function newRMDialogController($q, $mdDialog, missions) {
-
-    vm = this;
-
-    vm.missionNames = missions
-    vm.gmapsService = new google.maps.places.AutocompleteService();
-    vm.geocoder = new google.maps.Geocoder();
-
-    // vm.RM = {
-    //   from: 'Panama City, FL',
-    //   gender: 'Male',
-    //   creationDate: 'text',
-    //   leftChurch: {
-    //     date: '2015',
-    //     reason: 'text'
-    //   },
-    //   missionDetails: {
-    //     start: '2007',
-    //     end: '2009',
-    //     name: 'Tirana Albania Mission',
-    //     location: {
-    //       address: 'Tirana, Albania',
-    //     }
-    //   }
-    // };
-
-    vm.cancel = function() {
-      $mdDialog.cancel();
     };
 
-    vm.search = function(address) {
-      var deferred = $q.defer();
-      getResults(address).then(
-        function (predictions) {
-          var results = [];
-          for (var i = 0, prediction; prediction = predictions[i]; i++) {
-            results.push(prediction.description);
+    function newRMDialogController($q, $mdDialog, missions) {
+
+      vm = this;
+
+      vm.missionNames = missions
+      vm.gmapsService = new google.maps.places.AutocompleteService();
+      vm.geocoder = new google.maps.Geocoder();
+
+      // vm.RM = {
+      //   from: 'Panama City, FL',
+      //   gender: 'Male',
+      //   creationDate: 'text',
+      //   leftChurch: {
+      //     date: '2015',
+      //     reason: 'text'
+      //   },
+      //   missionDetails: {
+      //     start: '2007',
+      //     end: '2009',
+      //     name: 'Tirana Albania Mission',
+      //     location: {
+      //       address: 'Tirana, Albania',
+      //     }
+      //   }
+      // };
+
+      vm.cancel = function() {
+        $mdDialog.cancel();
+      };
+
+      vm.search = function(address) {
+        var deferred = $q.defer();
+        getResults(address).then(
+          function (predictions) {
+            var results = [];
+            for (var i = 0, prediction; prediction = predictions[i]; i++) {
+              results.push(prediction.description);
+            }
+            deferred.resolve(results);
           }
-          deferred.resolve(results);
-        }
-      );
-     return deferred.promise;
+        );
+       return deferred.promise;
+      }
+
+      function getResults(address) {
+        var deferred = $q.defer();
+        vm.gmapsService.getQueryPredictions({input: address}, function (data) {
+          deferred.resolve(data);
+        });
+        return deferred.promise;
+      }
+
+      vm.debug = function(error) {
+        console.log(error);
+      }
+
+      vm.add = function(newRM) {
+        vm.geocoder.geocode( { 'address': vm.RM.missionDetails.location.address}, function(results, status) {
+          if (status == 'OK') {
+            // $log.debug(results[0].geometry)
+            vm.RM.creationDate = new Date().toString();
+            vm.RM.missionDetails.location.lat = results[0].geometry.location.lat();
+            vm.RM.missionDetails.location.lng = results[0].geometry.location.lng();
+
+            firebase.database().ref('RMList/').push(vm.RM);
+
+            $mdToast.show(
+              $mdToast.simple()
+                .textContent("Succcess! You've been added to the map.")
+                .position('bottom right')
+                .hideDelay(3000)
+            );
+
+            $mdDialog.hide(newRM);
+
+          } else {
+            $mdToast.show(
+              $mdToast.simple()
+                .textContent('Geocode was not successful for the following reason: ' + status)
+                .position('bottom right')
+                .hideDelay(10000)
+            );
+          }
+        });
+      }
     }
-
-    function getResults(address) {
-      var deferred = $q.defer();
-      vm.gmapsService.getQueryPredictions({input: address}, function (data) {
-        deferred.resolve(data);
-      });
-      return deferred.promise;
-    }
-
-    vm.debug = function(error) {
-      console.log(error);
-    }
-
-    vm.add = function(newRM) {
-      vm.geocoder.geocode( { 'address': vm.RM.missionDetails.location.address}, function(results, status) {
-        if (status == 'OK') {
-          $log.debug(results[0].geometry)
-          vm.RM.creationDate = new Date().toString();
-          vm.RM.missionDetails.location.lat = results[0].geometry.location.lat();
-          vm.RM.missionDetails.location.lng = results[0].geometry.location.lng();
-
-          firebase.database().ref('RMList/').push(vm.RM);
-
-          $mdToast.show(
-            $mdToast.simple()
-              .textContent("Succcess! You've been added to the map.")
-              .position('bottom right')
-              .hideDelay(3000)
-          );
-
-          $mdDialog.hide(newRM);
-
-        } else {
-          $mdToast.show(
-            $mdToast.simple()
-              .textContent('Geocode was not successful for the following reason: ' + status)
-              .position('bottom right')
-              .hideDelay(10000)
-          );
-        }
-      });
-    }
-  }
 
   vm.appInit();
 
