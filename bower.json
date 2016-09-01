@@ -18,6 +18,7 @@
   "dependencies": {
     "angular-ui-router": "^0.3.1",
     "js-marker-clusterer": "*",
-    "ngMask": "angular-mask#^3.1.1"
+    "ngMask": "angular-mask#^3.1.1",
+    "ngmap": "^1.17.6"
   }
 }

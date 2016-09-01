@@ -1,1 +1,3 @@
-<div id="map"></div>
+<div map-lazy-load="{{main.mapAPI}}">
+  <ng-map center="[{{main.mapCenter.lat}}, {{main.mapCenter.lng}}]" zoom="3"></ng-map>
+</div>
