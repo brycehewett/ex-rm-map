@@ -1,7 +1,7 @@
 <html lang="en" ng-app="app">
   <base href="/">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- Angular Material style sheet -->
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -23,7 +23,8 @@
                 md-is-locked-open="$mdMedia('gt-sm')">
                 <md-toolbar class="md-theme-indigo">
                   <div class="md-toolbar-tools">
-        <h1>About This Site</h1>
+        <h1 hide-gt-sm>About This Site</h1>
+        <h1 hide-xs hide-sm>Ex-Mormon Missionary Map</h1>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="main.toggleNav()" hide-gt-sm>
           <md-icon aria-label="Close Sidebar" class="material-icons">close</md-icon>
@@ -42,12 +43,18 @@
 
 
         <md-button class="md-primary md-raised md-button"
-                   style="width: 95%"
+                   style="width: 90%"
                    ng-click="main.showNewRMDialog($event); main.toggleNav();">
                    Add yourself to the map
         </md-button>
 
       </md-content>
+
+      <span flex></span>
+
+      <md-menu-item>
+              <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback About This Site</p></a>
+      </md-menu-item>
     </md-sidenav>
     <div md-layout="column" flex>
 
