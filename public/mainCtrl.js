@@ -20,31 +20,33 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    vm.mapAPI = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places';
-
-    vm.RMList = {};
-    vm.missionNames = [];
-    vm.newRM;
-    var map;
-    vm.mapCenter = {
+    $scope.missionCount = 0;
+    $scope.RMCount = 0;
+    $scope.map;
+    $scope.mapCenter = {
       lat: 41,
       lng: -87
-    };
+    }
 
-    var geocoder;
+    vm.mapAPI = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places';
+    vm.RMList = {};
+    vm.RMCount = 0;
+
+    vm.missionNames = [];
+    vm.newRM;
     vm.markerArray = [];
+    vm.MarkerClusterer;
 
     if (window.location.hostname.indexOf('localhost') < 0) {
       var db = 'main/'
     } else {
-      $log.debug('localhost')
+      $log.warn("You're currently on localhost. All data will be pushed to test directory.")
       var db = 'test/'
     }
 
     vm.toggleNav = function() {
       $mdSidenav('left').toggle();
     }
-
 
     vm.appInit = function(){
       firebase.database().ref(db + 'RMList').once('value').then(function(snapshot) {
@@ -58,10 +60,11 @@
               if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
                 vm.missionNames.push(vm.RMList[rm].missionDetails.name)
               }
+              $scope.missionCount = vm.missionNames.length;
+              $scope.RMCount++
               vm.markerArray.push(marker);
-              $log.debug(marker)
             }
-            vm.markerCluster = new MarkerClusterer(map, vm.markerArray, {
+            $scope.markerCluster = new MarkerClusterer(map, vm.markerArray, {
               imagePath: 'libs/js-marker-clusterer/images/m'});
           })
       }, function(error) {
@@ -78,29 +81,21 @@
         clickOutsideToClose: true
       })
       .then(function(newRM) {
-        vm.mapCenter.lat = newRM.missionDetails.location.lat;
-        vm.mapCenter.lng = newRM.missionDetails.location.lng;
-        console.log(vm.mapCenter.lat)
-        console.log(vm.mapCenter.lng)
+        $scope.mapCenter = newRM.missionDetails.location;
 
         NgMap.getMap().then(function(map) {
           var marker = new google.maps.Marker({
               position: newRM.missionDetails.location
           });
-          vm.markerCluster.addMarker(marker);
-
+          $scope.markerCluster.addMarker(marker);
         })
 
-
-        // map.setCenter(newRM.missionDetails.location);
-
-
-      }, function() {
-      });
+        $scope.missionCount++
+        $scope.RMCount++
+      })
     };
 
     function newRMDialogController($q, $mdDialog, missions) {
-
 
       vm = this;
 
@@ -108,22 +103,25 @@
       vm.gmapsService = new google.maps.places.AutocompleteService();
       vm.geocoder = new google.maps.Geocoder();
 
-      vm.RM = {
-        from: 'Panama City, FL',
-        gender: 'Male',
-        creationDate: 'text',
-        leftChurch: {
-          date: '2015',
-          reason: 'text'
-        },
-        missionDetails: {
-          start: '2007',
-          end: '2009',
-          name: 'Tirana Albania Mission',
-          location: {
-            address: 'Tirana, Albania',
+      if (window.location.hostname.indexOf('localhost') == 0) {
+        $log.warn("You're on localhost, adding to test db.")
+        vm.RM = {
+          from: 'Panama City, FL',
+          gender: 'Male',
+          creationDate: 'text',
+          leftChurch: {
+            date: '2015',
+            reason: 'text'
+          },
+          missionDetails: {
+            start: '2007',
+            end: '2009',
+            name: 'Tirana Albania Mission',
+            location: {
+              address: 'Tirana, Albania',
+            }
           }
-        }
+        };
       };
 
       vm.cancel = function() {
