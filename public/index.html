@@ -6,41 +6,81 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
 
     <style>
-      #map {
-        height: calc(100vh - 64px);
-      }
 
       md-pagination-wrapper {
         width: auto!important;
+      }
+
+      .content {
+        position: relative;
+      }
+
+      .content md-progress-circular{
+        position: absolute;
+        top: 50%;
+        left:50%;
+        margin-top: -20px;
+        margin-left: -20px;
+      }
+
+      .stat-column {
+        text-align: center;
+      }
+
+      .stat-column h3 {
+        margin-bottom: 0;
+      }
+
+      .stat-column p {
+        color: #888;
+      }
+
+      @media (min-width: 960px) {
+        .map {
+          height: calc(100vh - 64px);
+        }
+      }
+
+      @media (max-width: 959px) {
+        .map {
+          height: calc(100vh - 48px);
+        }
+      }
+
+      @media (max-width: 699px) {
+        .map {
+          height: calc(100vh - 56px);
+        }
       }
     </style>
   </head>
 
   <body layout="row" ng-controller="mainController as main"  id="{{$state}}" ng-cloak>
-    <md-sidenav md-component-id="left" class="md-sidenav-left"
-                md-is-locked-open="$mdMedia('gt-sm')">
-                <md-toolbar class="md-theme-indigo">
-                  <div class="md-toolbar-tools">
-        <h1 hide-gt-sm>About This Site</h1>
-        <h1 hide-xs hide-sm>Ex-Mormon Missionary Map</h1>
-        <span flex></span>
-        <md-button class="md-icon-button" ng-click="main.toggleNav()" hide-gt-sm>
-          <md-icon aria-label="Close Sidebar" class="material-icons">close</md-icon>
-        </md-button>
-      </div>
+    <md-sidenav md-component-id="left"
+                class="md-sidenav-left"
+                md-is-locked-open="$mdMedia('gt-sm')"
+                layout="column">
+      <md-toolbar class="md-theme-indigo">
+        <div class="md-toolbar-tools">
+          <h1 hide-gt-sm>About This Site</h1>
+          <h1 hide-xs hide-sm>Ex-Mormon Missionary Map</h1>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="main.toggleNav()" hide-gt-sm>
+            <md-icon aria-label="Close Sidebar" class="material-icons">close</md-icon>
+          </md-button>
+        </div>
 
       </md-toolbar>
       <md-content class="layout-margin">
-
         <p>
           This map serves as a visual representation of the mormon missionaries that have left The Church of Jesus Christ of Latter-Day Saints.
         </p>
         <p>
           If you served a mission and left the church, add yourself to the map.
         </p>
-
 
         <md-button class="md-primary md-raised md-button"
                    style="width: 90%"
@@ -49,11 +89,22 @@
         </md-button>
 
       </md-content>
+      <md-content layout="row">
+        <div flex="50" class="stat-column">
+          <h3 class="md-display-3">{{RMCount}}</h3>
+          <p>Missionaries</p>
+        </div>
+
+        <div flex class="stat-column">
+          <h3 class="md-display-3">{{missionCount}}</h3>
+          <p>Missions</p>
+        </div>
+      </md-content>
 
       <span flex></span>
 
       <md-menu-item>
-              <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback About This Site</p></a>
+              <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback <span hide-xs>About This Site</span></p></a>
       </md-menu-item>
     </md-sidenav>
     <div md-layout="column" flex>
@@ -68,7 +119,7 @@
         </md-button>
       </div>
       </md-toolbar>
-      <div ui-view></div>
+      <div class="content" ui-view></div>
     </div>
   </body>
 
@@ -83,11 +134,12 @@
   <!-- Angular Material Library -->
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places"></script>
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places"></script> -->
 
   <!-- Other dependencies -->
   <script src="libs/angular-ui-router/release/angular-ui-router.min.js"></script>
   <script src='libs/ngMask/dist/ngMask.min.js'></script>
+  <script src="libs/ngmap/build/scripts/ng-map.min.js"></script>
   <script src="libs/js-marker-clusterer/src/markerclusterer_compiled.js"></script>
 
   <script src="app.js"></script>

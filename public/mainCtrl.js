@@ -5,9 +5,9 @@
     .module('app.main')
     .controller('mainController', mainController);
 
-  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav'];
+  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav', 'NgMap'];
 
-  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav) {
+  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav, NgMap) {
 
     var vm = this;
 
@@ -20,53 +20,53 @@
 
     firebase.initializeApp(firebaseConfig);
 
+    $scope.missionCount = 0;
+    $scope.RMCount = 0;
+    $scope.map;
+    $scope.mapCenter = {
+      lat: 41,
+      lng: -87
+    }
+
+    vm.mapAPI = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places';
     vm.RMList = {};
+    vm.RMCount = 0;
+
     vm.missionNames = [];
     vm.newRM;
-
-    var geocoder;
-    var map;
-    var markerArray = [];
-    var markerCluster;
+    vm.markerArray = [];
+    vm.MarkerClusterer;
 
     if (window.location.hostname.indexOf('localhost') < 0) {
-      $log.debug('not localhost')
       var db = 'main/'
     } else {
-      $log.debug('localhost')
+      $log.warn("You're currently on localhost. All data will be pushed to test directory.")
       var db = 'test/'
-      $log.debug(db)
     }
 
     vm.toggleNav = function() {
       $mdSidenav('left').toggle();
     }
 
-    vm.initMap = function() {
-      var myLatLng = {lat: 33.328748, lng: -40.497745};
-
-      map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 3,
-        center: myLatLng
-      });
-
-      markerCluster = new MarkerClusterer(map, markerArray, {imagePath: 'libs/js-marker-clusterer/images/m'});
-    }
-
     vm.appInit = function(){
       firebase.database().ref(db + 'RMList').once('value').then(function(snapshot) {
         vm.RMList = snapshot.val();
-        for (var rm in vm.RMList) {
-          var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
-          var marker = new google.maps.Marker({
-            position: latLng
-          });
-          if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
-            vm.missionNames.push(vm.RMList[rm].missionDetails.name)
-          }
-          markerArray.push(marker);
-        }
-        vm.initMap();
+          NgMap.getMap().then(function(map) {
+            for (var rm in vm.RMList) {
+              var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
+              var marker = new google.maps.Marker({
+                position: latLng
+              });
+              if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
+                vm.missionNames.push(vm.RMList[rm].missionDetails.name)
+              }
+              $scope.missionCount = vm.missionNames.length;
+              $scope.RMCount++
+              vm.markerArray.push(marker);
+            }
+            $scope.markerCluster = new MarkerClusterer(map, vm.markerArray, {
+              imagePath: 'libs/js-marker-clusterer/images/m'});
+          })
       }, function(error) {
           $log.error(error)
       })
@@ -81,15 +81,18 @@
         clickOutsideToClose: true
       })
       .then(function(newRM) {
-        map.setCenter(newRM.missionDetails.location);
-        var marker = new google.maps.Marker({
-            map: map,
-            position: newRM.missionDetails.location
-        });
+        $scope.mapCenter = newRM.missionDetails.location;
 
-        markerCluster.addMarker(marker);
-      }, function() {
-      });
+        NgMap.getMap().then(function(map) {
+          var marker = new google.maps.Marker({
+              position: newRM.missionDetails.location
+          });
+          $scope.markerCluster.addMarker(marker);
+        })
+
+        $scope.missionCount++
+        $scope.RMCount++
+      })
     };
 
     function newRMDialogController($q, $mdDialog, missions) {
@@ -100,23 +103,26 @@
       vm.gmapsService = new google.maps.places.AutocompleteService();
       vm.geocoder = new google.maps.Geocoder();
 
-      // vm.RM = {
-      //   from: 'Panama City, FL',
-      //   gender: 'Male',
-      //   creationDate: 'text',
-      //   leftChurch: {
-      //     date: '2015',
-      //     reason: 'text'
-      //   },
-      //   missionDetails: {
-      //     start: '2007',
-      //     end: '2009',
-      //     name: 'Tirana Albania Mission',
-      //     location: {
-      //       address: 'Tirana, Albania',
-      //     }
-      //   }
-      // };
+      if (window.location.hostname.indexOf('localhost') == 0) {
+        $log.warn("You're on localhost, adding to test db.")
+        vm.RM = {
+          from: 'Panama City, FL',
+          gender: 'Male',
+          creationDate: 'text',
+          leftChurch: {
+            date: '2015',
+            reason: 'text'
+          },
+          missionDetails: {
+            start: '2007',
+            end: '2009',
+            name: 'Tirana Albania Mission',
+            location: {
+              address: 'Tirana, Albania',
+            }
+          }
+        };
+      };
 
       vm.cancel = function() {
         $mdDialog.cancel();

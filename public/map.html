@@ -1,1 +1,14 @@
-<div id="map"></div>
+<div class="map" map-lazy-load="{{main.mapAPI}}">
+  <ng-map center="[{{mapCenter.lat}}, {{mapCenter.lng}}]"
+          map-initialized="main.mapReady = true"
+          zoom="4"
+          max-zoom="7"
+          min-zoom="4"
+          street-view-control="false">
+  </ng-map>
+</div>
+<md-progress-circular ng-disabled="main.mapReady"
+                      class="md-accent"
+                      md-diameter="40"
+                      class="progress-indicator">
+</md-progress-circular>

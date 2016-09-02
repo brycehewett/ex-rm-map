@@ -27,7 +27,7 @@
                                    md-item-text="mission"
                                    md-min-length="1"
                                    md-floating-label="Mission Name"
-                                   required>
+                                   required md-autofocus>
                                    <md-item-template>
                                      <span md-highlight-text="newRM.RM.missionDetails.name"
                                            md-highlight-flags="^i">
@@ -51,8 +51,9 @@
                                      <span md-highlight-text="locationSearchText" md-highlight-flags="^i">{{location}}</span>
                                    </md-item-template>
                   </md-autocomplete>
+                  <div layout="row">
 
-                  <md-input-container>
+                  <md-input-container flex="50">
                     <label>Mission Start Year</label>
                     <input ng-model="newRM.RM.missionDetails.start"
                            type="text"
@@ -61,7 +62,7 @@
                            required>
                   </md-input-container>
 
-                  <md-input-container>
+                  <md-input-container flex>
                     <label>Mission End Year</label>
                     <input ng-model="newRM.RM.missionDetails.end"
                            type="text"
@@ -69,6 +70,7 @@
                            restrict="reject"
                            required>
                   </md-input-container>
+                </div>
                 </form>
             </md-content>
           </md-tab-body>
