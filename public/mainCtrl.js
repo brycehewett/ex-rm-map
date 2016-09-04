@@ -31,7 +31,7 @@
     vm.mapAPI = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBOuqyDzI-BqSgSjv1cB3K0P5urSjqNj8Y&libraries=places';
     vm.RMList = {};
     vm.RMCount = 0;
-
+    vm.missionData = [];
     vm.missionNames = [];
     vm.newRM;
     vm.markerArray = [];
@@ -49,23 +49,48 @@
     }
 
     vm.appInit = function(){
+      vm.mapReady = false;
       firebase.database().ref(db + 'RMList').once('value').then(function(snapshot) {
         vm.RMList = snapshot.val();
           NgMap.getMap().then(function(map) {
-            for (var rm in vm.RMList) {
-              var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
-              var marker = new google.maps.Marker({
-                position: latLng
-              });
-              if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
-                vm.missionNames.push(vm.RMList[rm].missionDetails.name)
-              }
-              $scope.missionCount = vm.missionNames.length;
-              $scope.RMCount++
-              vm.markerArray.push(marker);
+
+            function initMapData() {
+               var q = $q.defer();
+               vm.mapReady = false;
+               for (var rm in vm.RMList) {
+                 var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
+                 var marker = new google.maps.Marker({
+                   position: latLng
+                 });
+                 if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
+                   vm.missionNames.push(vm.RMList[rm].missionDetails.name);
+                   var mission = vm.RMList[rm].missionDetails;
+                   delete mission.start;
+                   delete mission.end;
+                   vm.missionData.push(mission)
+                   $log.debug(mission)
+                 }
+                 $scope.missionCount = vm.missionNames.length;
+                 $scope.RMCount++
+                 $log.debug(marker)
+                 vm.markerArray.push(marker);
+               }
+
+               $scope.markerCluster = new MarkerClusterer(map, vm.markerArray, {
+                 imagePath: 'libs/js-marker-clusterer/images/m',
+                 gridSize: 45,
+                 averageCenter: true
+               });
+
+              q.resolve();
+              return q.promise;
             }
-            $scope.markerCluster = new MarkerClusterer(map, vm.markerArray, {
-              imagePath: 'libs/js-marker-clusterer/images/m'});
+
+            initMapData().then(function() {
+              vm.mapReady = true;
+            }, function () {
+              vm.mapReady = true;
+            });
           })
       }, function(error) {
           $log.error(error)
