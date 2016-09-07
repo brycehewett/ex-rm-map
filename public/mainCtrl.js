@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   angular
@@ -48,77 +48,112 @@
       $mdSidenav('left').toggle();
     }
 
-    vm.appInit = function(){
+    vm.selectMission = function(lat, lng) {
+      var selected = [];
+      for (var rm in vm.RMList) {
+        if (lat == vm.RMList[rm].missionDetails.location.lat &&
+            lng == vm.RMList[rm].missionDetails.location.lng) {
+              selected.push(vm.RMList[rm])
+        }
+      }
+      vm.selectedMission = selected;
+      $scope.$apply();
+      console.log(vm.selectedMission)
+    }
+
+    vm.initMapData = function(map) {
+      var q = $q.defer();
       vm.mapReady = false;
-      firebase.database().ref(db + 'RMList').once('value').then(function(snapshot) {
+      for (var rm in vm.RMList) {
+        var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
+        var marker = new google.maps.Marker({
+          position: latLng
+        });
+
+        marker.addListener('click', function (marker) {
+          vm.selectMission(marker.latLng.lat(), marker.latLng.lng());
+          map.setCenter(marker.latLng)
+        });
+
+
+        if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
+          vm.missionNames.push(vm.RMList[rm].missionDetails.name);
+          var mission = vm.RMList[rm].missionDetails;
+          // delete mission.start;
+          // delete mission.end;
+          vm.missionData.push(mission)
+          //  $log.debug(mission)
+        }
+        $scope.missionCount = vm.missionNames.length;
+        $scope.RMCount++
+        //  $log.debug(marker)
+        vm.markerArray.push(marker);
+      }
+
+      vm.markerCluster = new MarkerClusterer(map, vm.markerArray, {
+        imagePath: 'libs/js-marker-clusterer/images/m',
+        gridSize: 45,
+        averageCenter: true
+      });
+
+      google.maps.event.addListener(vm.markerCluster, 'clusterclick', function (cluster) {
+        if (map.getZoom() == map.maxZoom) {
+          vm.selectMission(cluster.a[0].position.lat(), cluster.a[0].position.lng());
+        }
+      });
+      q.resolve();
+      return q.promise;
+    }
+
+    vm.appInit = function () {
+      vm.mapReady = false;
+      firebase.database().ref(db + 'RMList').once('value').then(function (snapshot) {
         vm.RMList = snapshot.val();
-          NgMap.getMap().then(function(map) {
+        NgMap.getMap().then(function (map) {
 
-            function initMapData() {
-               var q = $q.defer();
-               vm.mapReady = false;
-               for (var rm in vm.RMList) {
-                 var latLng = new google.maps.LatLng(vm.RMList[rm].missionDetails.location.lat, vm.RMList[rm].missionDetails.location.lng);
-                 var marker = new google.maps.Marker({
-                   position: latLng
-                 });
-                 if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
-                   vm.missionNames.push(vm.RMList[rm].missionDetails.name);
-                   var mission = vm.RMList[rm].missionDetails;
-                   delete mission.start;
-                   delete mission.end;
-                   vm.missionData.push(mission)
-                   $log.debug(mission)
-                 }
-                 $scope.missionCount = vm.missionNames.length;
-                 $scope.RMCount++
-                 $log.debug(marker)
-                 vm.markerArray.push(marker);
-               }
+          vm.geocoder = new google.maps.Geocoder();
 
-               $scope.markerCluster = new MarkerClusterer(map, vm.markerArray, {
-                 imagePath: 'libs/js-marker-clusterer/images/m',
-                 gridSize: 45,
-                 averageCenter: true
-               });
-
-              q.resolve();
-              return q.promise;
-            }
-
-            initMapData().then(function() {
-              vm.mapReady = true;
-            }, function () {
-              vm.mapReady = true;
-            });
-          })
-      }, function(error) {
-          $log.error(error)
+          vm.initMapData(map).then(function () {
+            vm.mapReady = true;
+          }, function () {
+            vm.mapReady = true;
+          });
+        })
+      }, function (error) {
+        $log.error(error)
       })
     };
 
-    vm.showNewRMDialog = function() {
+    console.log(vm.selectedMission)
+
+
+    vm.showNewRMDialog = function () {
       $mdDialog.show({
         controller: newRMDialogController,
         templateUrl: 'newRMDialog.html',
-        locals:{missions: vm.missionNames},
+        locals: {missions: vm.missionNames},
         controllerAs: 'newRM',
         clickOutsideToClose: true
       })
-      .then(function(newRM) {
-        $scope.mapCenter = newRM.missionDetails.location;
+        .then(function (newRM) {
+          $scope.mapCenter = newRM.missionDetails.location;
 
-        NgMap.getMap().then(function(map) {
-          var marker = new google.maps.Marker({
+          NgMap.getMap().then(function (map) {
+            var marker = new google.maps.Marker({
               position: newRM.missionDetails.location
-          });
-          $scope.markerCluster.addMarker(marker);
-        })
+            });
+            $scope.markerCluster.addMarker(marker);
+          })
 
-        $scope.missionCount++
-        $scope.RMCount++
-      })
+          $scope.missionCount++
+          $scope.RMCount++
+        })
     };
+
+    vm.debug = function () {
+      console.log(vm.selectedMission);
+    }
+
 
     function newRMDialogController($q, $mdDialog, missions) {
 
@@ -147,13 +182,14 @@
             }
           }
         };
-      };
+      }
+      ;
 
-      vm.cancel = function() {
+      vm.cancel = function () {
         $mdDialog.cancel();
       };
 
-      vm.search = function(address) {
+      vm.search = function (address) {
         var deferred = $q.defer();
         getResults(address).then(
           function (predictions) {
@@ -164,7 +200,7 @@
             deferred.resolve(results);
           }
         );
-       return deferred.promise;
+        return deferred.promise;
       }
 
       function getResults(address) {
@@ -175,12 +211,8 @@
         return deferred.promise;
       }
 
-      vm.debug = function(error) {
-        console.log(error);
-      }
-
-      vm.add = function(newRM) {
-        vm.geocoder.geocode( { 'address': vm.RM.missionDetails.location.address}, function(results, status) {
+      vm.add = function (newRM) {
+        vm.geocoder.geocode({'address': vm.RM.missionDetails.location.address}, function (results, status) {
           if (status == 'OK') {
             // $log.debug(results[0].geometry)
             vm.RM.creationDate = new Date().toString();
@@ -210,7 +242,7 @@
       }
     }
 
-  vm.appInit();
+    vm.appInit();
 
   }
 })();

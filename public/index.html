@@ -79,40 +79,53 @@
             <md-icon aria-label="Close Sidebar" class="material-icons">close</md-icon>
           </md-button>
         </div>
-
       </md-toolbar>
-      <md-content class="layout-margin">
-        <p>
-          This map serves as a visual representation of the mormon missionaries that have left The Church of Jesus Christ of Latter-Day Saints.
-        </p>
-        <p>
-          If you served a mission and left the church, add yourself to the map.
-        </p>
+      <div ng-hide="main.selectedMission.length > 0">
+        <md-content class="layout-margin">
+          <p>
+            This map serves as a visual representation of the mormon missionaries that have left The Church of Jesus Christ of Latter-Day Saints.
+          </p>
+          <p>
+            If you served a mission and left the church, add yourself to the map.
+          </p>
 
-        <md-button class="md-primary md-raised md-button"
-                   style="width: 90%"
-                   ng-click="main.showNewRMDialog($event); main.toggleNav();">
-                   Add yourself to the map
-        </md-button>
+          <md-button class="md-primary md-raised md-button"
+                     style="width: 90%"
+                     ng-click="main.showNewRMDialog($event); main.toggleNav();">
+                     Add yourself to the map
+          </md-button>
 
-      </md-content>
-      <md-content layout="row">
-        <div flex="50" class="stat-column">
-          <h3 class="md-display-3">{{RMCount}}</h3>
-          <p>Missionaries</p>
+        </md-content>
+        <md-content layout="row">
+          <div flex="50" class="stat-column">
+            <h3 class="md-display-3">{{RMCount}}</h3>
+            <p>Missionaries</p>
+          </div>
+
+          <div flex class="stat-column">
+            <h3 class="md-display-3">{{missionCount}}</h3>
+            <p>Missions</p>
+          </div>
+        </md-content>
+
+        <span flex></span>
+
+        <md-menu-item>
+                <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback <span hide-xs>About This Site</span></p></a>
+        </md-menu-item>
+      </div>
+      <div ng-show="main.selectedMission.length > 0">
+        <div ng-show="RM.leftChurch.reason.length > 0" ng-repeat="RM in main.selectedMission">
+          <p>{{RM.leftChurch.reason}}</p>
+          <p>{{RM.missionDetails.name}}</p>
+          <p>{{RM.leftChurch.date}}</p>
+          <p>{{RM.missionDetails.start}}</p>
+          <p>{{RM.missionDetails.end}}</p>
+
         </div>
+        <md-button ng-click="main.selectedMission = null">back</md-button>
 
-        <div flex class="stat-column">
-          <h3 class="md-display-3">{{missionCount}}</h3>
-          <p>Missions</p>
-        </div>
-      </md-content>
-
-      <span flex></span>
-
-      <md-menu-item>
-              <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback <span hide-xs>About This Site</span></p></a>
-      </md-menu-item>
+      </div>
     </md-sidenav>
     <div md-layout="column" flex>
 
