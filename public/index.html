@@ -80,7 +80,7 @@
           </md-button>
         </div>
       </md-toolbar>
-      <div ng-hide="main.selectedMission.length > 0">
+      <div ng-hide="main.selectedMissions.length > 0">
         <md-content class="layout-margin">
           <p>
             This map serves as a visual representation of the mormon missionaries that have left The Church of Jesus Christ of Latter-Day Saints.
@@ -114,18 +114,31 @@
                 <a md-button href="mailto:feedback@exrmmap.com"><p><md-icon class="material-icons">mail</md-icon>Send Feedback <span hide-xs>About This Site</span></p></a>
         </md-menu-item>
       </div>
-      <div ng-show="main.selectedMission.length > 0">
-        <div ng-show="RM.leftChurch.reason.length > 0" ng-repeat="RM in main.selectedMission">
-          <p>{{RM.leftChurch.reason}}</p>
-          <p>{{RM.missionDetails.name}}</p>
-          <p>{{RM.leftChurch.date}}</p>
-          <p>{{RM.missionDetails.start}}</p>
-          <p>{{RM.missionDetails.end}}</p>
-
+      <md-toolbar ng-show="main.selectedMissions.length > 0">
+        <div class="md-toolbar-tools">
+          <md-button class="md-icon-button" ng-click="main.selectedMissions = null">
+            <md-icon aria-label="Back to main sidebar" class="material-icons">arrow_back</md-icon>
+          </md-button>
+          <h2>Reasons for Leaving</h2>
         </div>
-        <md-button ng-click="main.selectedMission = null">back</md-button>
+      </md-toolbar>
+      <md-content flex ng-show="main.selectedMissions.length > 0">
+        <section ng-repeat="mission in main.selectedMissions">
+          <md-subheader><h3>{{mission.name}}</h3></md-subheader>
+          <md-list layout-padding>
+            <md-list-item class="md-3-line" ng-repeat="RM in mission.missionaries">
+                <div class="md-list-item-text">
+                  <p>{{RM.leftChurch.reason}}</p>
+                  <p><strong>Served</strong> {{RM.missionDetails.start}} - {{RM.missionDetails.end}}</p>
+                  <p><strong>Left</strong> {{RM.leftChurch.date}}</p>
 
-      </div>
+                </div>
+                <md-divider ng-if="!$last"></md-divider>
+
+            </md-list-item>
+          </md-list>
+        </section>
+      </md-content>
     </md-sidenav>
     <div md-layout="column" flex>
 

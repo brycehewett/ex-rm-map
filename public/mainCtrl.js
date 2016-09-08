@@ -48,17 +48,48 @@
       $mdSidenav('left').toggle();
     }
 
-    vm.selectMission = function(lat, lng) {
-      var selected = [];
-      for (var rm in vm.RMList) {
-        if (lat == vm.RMList[rm].missionDetails.location.lat &&
-            lng == vm.RMList[rm].missionDetails.location.lng) {
-              selected.push(vm.RMList[rm])
+    vm.findIndexByKeyValue = function(obj, key, value) {
+      for (var i = 0; i < obj.length; i++) {
+        if (obj[i][key] == value) {
+          return true;
         }
       }
-      vm.selectedMission = selected;
+      return false;
+    }
+
+    vm.selectMission = function(pinsArray) {
+      // console.log(pinsArray)
+      var selectedMissions = [];
+      for (var rm in vm.RMList) {
+        for (var pin in pinsArray) {
+          if (pinsArray[pin].lat == vm.RMList[rm].missionDetails.location.lat &&
+              pinsArray[pin].lng == vm.RMList[rm].missionDetails.location.lng) {
+                // console.log(pinsArray[pin])
+                var mission = {};
+
+                // console.log(vm.findIndexByKeyValue(selectedMissions, 'name', vm.RMList[rm].missionDetails.name))
+
+                if (!vm.findIndexByKeyValue(selectedMissions, 'name', vm.RMList[rm].missionDetails.name)) {
+                  mission.name = vm.RMList[rm].missionDetails.name;
+                  mission.location = vm.RMList[rm].missionDetails.location;
+                  mission.missionaries = [vm.RMList[rm]];
+                  // console.log(mission.name)
+                  selectedMissions.push(mission)
+                } else {
+                  for (var m in selectedMissions) {
+                    // console.log(m)
+                    // console.log(selectedMissions[m])
+                    if (selectedMissions[m].name == vm.RMList[rm].missionDetails.name){
+                      selectedMissions[m].missionaries.push(vm.RMList[rm])
+                    }
+                  }
+                }
+          }
+        }
+      }
+      vm.selectedMissions = selectedMissions;
       $scope.$apply();
-      console.log(vm.selectedMission)
+      console.log(vm.selectedMissions)
     }
 
     vm.initMapData = function(map) {
@@ -71,10 +102,9 @@
         });
 
         marker.addListener('click', function (marker) {
-          vm.selectMission(marker.latLng.lat(), marker.latLng.lng());
+          vm.selectMission([{lat: marker.latLng.lat(), lng: marker.latLng.lng()}]);
           map.setCenter(marker.latLng)
         });
-
 
         if (vm.missionNames.indexOf(vm.RMList[rm].missionDetails.name) < 0) {
           vm.missionNames.push(vm.RMList[rm].missionDetails.name);
@@ -98,7 +128,21 @@
 
       google.maps.event.addListener(vm.markerCluster, 'clusterclick', function (cluster) {
         if (map.getZoom() == map.maxZoom) {
-          vm.selectMission(cluster.a[0].position.lat(), cluster.a[0].position.lng());
+          // console.log(cluster)
+          var clusterPins = [];
+          for (var i in cluster.a) {
+            if (!vm.findIndexByKeyValue(clusterPins, 'lat', cluster.a[i].position.lat()) &&
+                  !vm.findIndexByKeyValue(clusterPins, 'lng', cluster.a[i].position.lng())) {
+
+              var pin = {
+                lat: cluster.a[i].position.lat(),
+                lng: cluster.a[i].position.lng()
+              }
+              clusterPins.push(pin)
+            }
+          }
+          // console.log(clusterPins);
+          vm.selectMission(clusterPins);
         }
       });
       q.resolve();
@@ -124,7 +168,7 @@
       })
     };
 
-    console.log(vm.selectedMission)
+    // console.log(vm.selectedMission)
 
 
     vm.showNewRMDialog = function () {
@@ -151,7 +195,7 @@
     };
 
     vm.debug = function () {
-      console.log(vm.selectedMission);
+      console.log(vm.selectedMissions);
     }
 
 
