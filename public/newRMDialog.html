@@ -22,16 +22,19 @@
                 <md-autocomplete name="missionName"
                                   id="missionName"
                                    md-no-cache="true"
+                                   md-selected-item-change="newRM.selectedLocation(mission.location)"
                                    md-search-text="newRM.RM.missionDetails.name"
-                                   md-items="mission in newRM.missionNames | filter:newRM.RM.missionDetails.name"
-                                   md-item-text="mission"
+                                   md-items="mission in newRM.missionData | filter:newRM.RM.missionDetails.name"
+                                   md-item-text="mission.name"
                                    md-min-length="1"
                                    md-floating-label="Mission Name"
+                                   md-select-on-match="true"
+                                   md-match-case-insensitive="true"
                                    required md-autofocus>
                                    <md-item-template>
                                      <span md-highlight-text="newRM.RM.missionDetails.name"
                                            md-highlight-flags="^i">
-                                           {{mission}}
+                                           {{mission.name}}
                                      </span>
                                    </md-item-template>
                   </md-autocomplete>

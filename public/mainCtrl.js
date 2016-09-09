@@ -5,9 +5,9 @@
     .module('app.main')
     .controller('mainController', mainController);
 
-  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav', 'NgMap'];
+  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav', 'NgMap', '$timeout'];
 
-  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav, NgMap) {
+  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav, NgMap, $timeout) {
 
     var vm = this;
 
@@ -68,11 +68,9 @@
                    delete mission.start;
                    delete mission.end;
                    vm.missionData.push(mission)
-                   $log.debug(mission)
                  }
                  $scope.missionCount = vm.missionNames.length;
                  $scope.RMCount++
-                 $log.debug(marker)
                  vm.markerArray.push(marker);
                }
 
@@ -101,7 +99,7 @@
       $mdDialog.show({
         controller: newRMDialogController,
         templateUrl: 'newRMDialog.html',
-        locals:{missions: vm.missionNames},
+        locals:{missions: vm.missionData},
         controllerAs: 'newRM',
         clickOutsideToClose: true
       })
@@ -122,9 +120,10 @@
 
     function newRMDialogController($q, $mdDialog, missions) {
 
-      vm = this;
+      var vm = this;
+      var timer;
 
-      vm.missionNames = missions
+      vm.missionData = missions
       vm.gmapsService = new google.maps.places.AutocompleteService();
       vm.geocoder = new google.maps.Geocoder();
 
@@ -146,24 +145,32 @@
               address: 'Tirana, Albania',
             }
           }
-        };
+        }
       };
 
       vm.cancel = function() {
         $mdDialog.cancel();
       };
 
+      vm.selectedLocation = function(location) {
+        vm.RM.missionDetails.location = location;
+      }
+
       vm.search = function(address) {
         var deferred = $q.defer();
-        getResults(address).then(
-          function (predictions) {
-            var results = [];
-            for (var i = 0, prediction; prediction = predictions[i]; i++) {
-              results.push(prediction.description);
+        $timeout.cancel(timer);
+
+        timer = $timeout(function () {
+          getResults(address).then(
+            function (predictions) {
+              var results = [];
+              for (var i = 0, prediction; prediction = predictions[i]; i++) {
+                results.push(prediction.description);
+              }
+              deferred.resolve(results);
             }
-            deferred.resolve(results);
-          }
-        );
+          );
+        }, 1000);
        return deferred.promise;
       }
 
@@ -173,10 +180,6 @@
           deferred.resolve(data);
         });
         return deferred.promise;
-      }
-
-      vm.debug = function(error) {
-        console.log(error);
       }
 
       vm.add = function(newRM) {
