@@ -7,5 +7,5 @@
   ]);
 
   angular.module('app.Services', []);
-  angular.module('app.main', ['ngMaterial', 'ngMask', 'ngMap']);
+  angular.module('app.main', ['ngMaterial', 'ngMask', 'ngMap', 'ngCookies']);
 })();

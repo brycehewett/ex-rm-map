@@ -5,9 +5,9 @@
     .module('app.main')
     .controller('mainController', mainController);
 
-  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav', 'NgMap', '$timeout'];
+  mainController.$inject = ['$q', '$scope', '$log', '$mdToast', '$mdDialog', '$mdSidenav', 'NgMap', '$timeout', '$cookies'];
 
-  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav, NgMap, $timeout) {
+  function mainController($q, $scope, $log, $mdToast, $mdDialog, $mdSidenav, NgMap, $timeout, $cookies) {
 
     var vm = this;
 
@@ -96,29 +96,58 @@
     };
 
     vm.showNewRMDialog = function() {
-      $mdDialog.show({
-        controller: newRMDialogController,
-        templateUrl: 'newRMDialog.html',
-        locals:{missions: vm.missionData},
-        controllerAs: 'newRM',
-        clickOutsideToClose: true
-      })
-      .then(function(newRM) {
-        $scope.mapCenter = newRM.missionDetails.location;
 
-        NgMap.getMap().then(function(map) {
-          var marker = new google.maps.Marker({
-              position: newRM.missionDetails.location
-          });
-          $scope.markerCluster.addMarker(marker);
+      $cookies.put("test", true);
+      $scope.cookieValue = $cookies.get("test");
+
+      if ($cookies.get("test")) {
+        $cookies.remove("test");
+        vm.cookiesEnabled = true;
+      } else {
+        vm.cookiesEnabled = false;
+      }
+
+      if ($cookies.get('missionSubmitted') || !vm.cookiesEnabled) {
+        $mdDialog.show({
+          controller: alertDialogController,
+          templateUrl: 'alertDialog.html',
+          locals:{cookiesEnabled: vm.cookiesEnabled},
+          controllerAs: 'alert',
+          clickOutsideToClose: true
         })
+      } else {
+        $mdDialog.show({
+          controller: newRMDialogController,
+          templateUrl: 'newRMDialog.html',
+          locals:{missions: vm.missionData},
+          controllerAs: 'newRM',
+          clickOutsideToClose: true
+        })
+        .then(function(newRM) {
+          $scope.mapCenter = newRM.missionDetails.location;
 
-        $scope.missionCount++
-        $scope.RMCount++
-      })
+          NgMap.getMap().then(function(map) {
+            var marker = new google.maps.Marker({
+                position: newRM.missionDetails.location
+            });
+            $scope.markerCluster.addMarker(marker);
+          })
+
+          $scope.missionCount++
+          $scope.RMCount++
+        })
+      }
     };
 
-    function newRMDialogController($q, $mdDialog, missions) {
+    function alertDialogController($mdDialog, cookiesEnabled) {
+      var vm = this;
+      vm.cookiesEnabled = cookiesEnabled;
+      vm.close = function() {
+        $mdDialog.cancel();
+      }
+    }
+
+    function newRMDialogController($q, $mdDialog, missions, $cookies) {
 
       var vm = this;
       var timer;
@@ -183,33 +212,34 @@
       }
 
       vm.add = function(newRM) {
-        vm.geocoder.geocode( { 'address': vm.RM.missionDetails.location.address}, function(results, status) {
-          if (status == 'OK') {
-            // $log.debug(results[0].geometry)
-            vm.RM.creationDate = new Date().toString();
-            vm.RM.missionDetails.location.lat = results[0].geometry.location.lat();
-            vm.RM.missionDetails.location.lng = results[0].geometry.location.lng();
+          vm.geocoder.geocode( { 'address': vm.RM.missionDetails.location.address}, function(results, status) {
+            if (status == 'OK') {
+              // $log.debug(results[0].geometry)
+              vm.RM.creationDate = new Date().toString();
+              vm.RM.missionDetails.location.lat = results[0].geometry.location.lat();
+              vm.RM.missionDetails.location.lng = results[0].geometry.location.lng();
 
-            firebase.database().ref(db + 'RMList').push(vm.RM);
+              $cookies.put('missionSubmitted', true, {'expires': "Fri Sep 09 2100 12:46:06 GMT-0600 (Mountain Daylight Time)"})
+              firebase.database().ref(db + 'RMList').push(vm.RM);
 
-            $mdToast.show(
-              $mdToast.simple()
-                .textContent("Succcess! You've been added to the map.")
-                .position('bottom right')
-                .hideDelay(3000)
-            );
+              $mdToast.show(
+                $mdToast.simple()
+                  .textContent("Succcess! You've been added to the map.")
+                  .position('bottom right')
+                  .hideDelay(3000)
+              );
 
-            $mdDialog.hide(newRM);
+              $mdDialog.hide(newRM);
 
-          } else {
-            $mdToast.show(
-              $mdToast.simple()
-                .textContent('Geocode was not successful for the following reason: ' + status)
-                .position('bottom right')
-                .hideDelay(10000)
-            );
-          }
-        });
+            } else {
+              $mdToast.show(
+                $mdToast.simple()
+                  .textContent('Geocode was not successful for the following reason: ' + status)
+                  .position('bottom right')
+                  .hideDelay(10000)
+              );
+            }
+          });
       }
     }
 
