@@ -171,6 +171,8 @@
       vm.gmapsService = new google.maps.places.AutocompleteService();
       vm.geocoder = new google.maps.Geocoder();
 
+      vm.RM = {};
+
       if (window.location.hostname.indexOf('localhost') == 0) {
         $log.warn("You're on localhost, adding to test db.")
         vm.RM = {
