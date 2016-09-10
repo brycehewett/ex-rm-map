@@ -1,0 +1,12 @@
+<md-dialog aria-label="RM already submitted">
+  <md-dialog-content class="md-dialog-content" style="text-align: center">
+    <md-icon class="material-icons md-warn" style="font-size: 50px; height: 50px; width: 50px;">error_outline</md-icon>
+    <h2 class="md-subhead" ng-show="alert.cookiesEnabled">Looks like you've already been added to the map.</h2>
+    <h2 class="md-subhead" ng-show="!alert.cookiesEnabled">Please enable cookies in order to add to the map.</h2>
+  </md-dialog-content>
+    <md-dialog-actions layout="column">
+      <md-button class="md-primary md-raised"
+                 ng-click="alert.close()">Close
+      </md-button>
+    </md-dialog-actions>
+</md-dialog>
