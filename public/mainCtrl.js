@@ -33,9 +33,9 @@
     vm.RMCount = 0;
     vm.missionData = [];
     vm.missionNames = [];
-    vm.newRM;
     vm.markerArray = [];
     vm.MarkerClusterer;
+    vm.fingerprintMatch = false;
 
     if (window.location.hostname.indexOf('localhost') < 0) {
       var db = 'main/'
@@ -47,6 +47,10 @@
     vm.toggleNav = function() {
       $mdSidenav('left').toggle();
     }
+
+    new Fingerprint2().get(function(result){
+      vm.fingerprint = result;
+    });
 
     vm.appInit = function(){
       vm.mapReady = false;
@@ -69,6 +73,11 @@
                    delete mission.end;
                    vm.missionData.push(mission)
                  }
+
+                 if (vm.fingerprint == vm.RMList[rm].fingerprint) {
+                   vm.fingerprintMatch = true;
+                 }
+
                  $scope.missionCount = vm.missionNames.length;
                  $scope.RMCount++
                  vm.markerArray.push(marker);
@@ -107,7 +116,11 @@
         vm.cookiesEnabled = false;
       }
 
-      if ($cookies.get('missionSubmitted') || !vm.cookiesEnabled) {
+      vm.checkFingerPrint = function(fingerprint) {
+
+      }
+
+      if ($cookies.get('missionSubmitted') || !vm.cookiesEnabled || vm.fingerprintMatch) {
         $mdDialog.show({
           controller: alertDialogController,
           templateUrl: 'alertDialog.html',
@@ -119,7 +132,8 @@
         $mdDialog.show({
           controller: newRMDialogController,
           templateUrl: 'newRMDialog.html',
-          locals:{missions: vm.missionData},
+          locals:{missions: vm.missionData,
+                  fingerprint: vm.fingerprint},
           controllerAs: 'newRM',
           clickOutsideToClose: true
         })
@@ -147,7 +161,7 @@
       }
     }
 
-    function newRMDialogController($q, $mdDialog, missions, $cookies) {
+    function newRMDialogController($q, $mdDialog, missions, $cookies, fingerprint) {
 
       var vm = this;
       var timer;
@@ -176,6 +190,8 @@
           }
         }
       };
+
+      vm.RM.fingerprint = fingerprint;
 
       vm.cancel = function() {
         $mdDialog.cancel();
