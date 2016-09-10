@@ -147,6 +147,7 @@
             $scope.markerCluster.addMarker(marker);
           })
 
+          vm.fingerprintMatch = true;
           $scope.missionCount++
           $scope.RMCount++
         })
